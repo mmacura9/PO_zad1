@@ -11,7 +11,7 @@ import cv2
 import os
 from scipy import ndimage
 
-def iseci_slovo(img: np.array) -> np.array:
+def cut_letter(img: np.array) -> np.array:
     """
     
 
@@ -22,7 +22,7 @@ def iseci_slovo(img: np.array) -> np.array:
 
     Returns
     -------
-    img : TYPE
+    img : np.array
         Izlazna slika na kojoj je smao slovo.
 
     """
@@ -67,15 +67,40 @@ def iseci_slovo(img: np.array) -> np.array:
     
     return img
 
+def up_down_ratio(img: np.array) -> float:
+    up = 0
+    down = 0
+    for i in range(img.shape[1]):
+        if i<img.shape[1]/2:
+            up = up + np.sum(img[:, i])
+        else:
+            down = down + np.sum(img[:, i])
+    return up/down
 
 if __name__=="__main__":
     path = './baza_slova'
     path_output = './baza_slova_izlaz'
     path_images = os.listdir(path)
     i=0
+    N = 120 # svakog slova ima po 120
+    A = []
+    E = []
+    I = []
+    O = []
+    U = []
     for path_img in path_images:
         i = i+1
         img = cv2.imread(path + '/' + path_img)/256
         img = img[:, :, 0]
-        img = iseci_slovo(img)
-        cv2.imwrite(path_output + '/' + path_img, img*256)
+        img = cut_letter(img)
+        # cv2.imwrite(path_output + '/' + path_img, img*256)
+        if path_img[4] == 'A':
+            A = A + [up_down_ratio(img)]
+        if path_img[4] == 'E':
+            E = E + [up_down_ratio(img)]
+        if path_img[4] == 'I':
+            I = I + [up_down_ratio(img)]
+        if path_img[4] == 'O':
+            O = O + [up_down_ratio(img)]
+        if path_img[4] == 'U':
+            U = U + [up_down_ratio(img)]
